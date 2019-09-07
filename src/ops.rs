@@ -28,11 +28,7 @@ impl Operation for OpAdd {
         let mut sum = 0;
         for val in args {
             let val = val.eval(context);
-            if let Value::Integer(int) = val {
-                sum += int;
-            } else {
-                panic!();
-            }
+            sum += val.unwrap_integer();
         }
         Value::Integer(sum)
     }
@@ -46,11 +42,7 @@ impl Operation for OpMul {
         let mut product = 1;
         for val in args {
             let val = val.eval(context);
-            if let Value::Integer(int) = val {
-                product *= int;
-            } else {
-                panic!();
-            }
+            product *= val.unwrap_integer();
         }
         Value::Integer(product)
     }
@@ -61,17 +53,8 @@ struct OpSub {}
 impl Operation for OpSub {
     fn eval(&self, args: &[Expression], context: &mut Context) -> Value {
         assert_eq!(args.len(), 2);
-        let left = if let Value::Integer(int) = args[0].eval(context) {
-            int
-        } else {
-            panic!();
-        };
-        let right = if let Value::Integer(int) = args[1].eval(context) {
-            int
-        } else {
-            panic!();
-        };
-
+        let left = args[0].eval(context).unwrap_integer();
+        let right = args[1].eval(context).unwrap_integer();
         Value::Integer(left - right)
     }
 }
@@ -81,17 +64,8 @@ struct OpDiv {}
 impl Operation for OpDiv {
     fn eval(&self, args: &[Expression], context: &mut Context) -> Value {
         assert_eq!(args.len(), 2);
-        let left = if let Value::Integer(int) = args[0].eval(context) {
-            int
-        } else {
-            panic!();
-        };
-        let right = if let Value::Integer(int) = args[1].eval(context) {
-            int
-        } else {
-            panic!();
-        };
-
+        let left = args[0].eval(context).unwrap_integer();
+        let right = args[1].eval(context).unwrap_integer();
         Value::Integer(left / right)
     }
 }
@@ -111,11 +85,7 @@ struct OpIf {}
 impl Operation for OpIf {
     fn eval(&self, args: &[Expression], context: &mut Context) -> Value {
         assert!(args.len() >= 2 && args.len() <= 3);
-        let control = if let Value::Bool(val) = args[0].eval(context) {
-            val
-        } else {
-            panic!();
-        };
+        let control = args[0].eval(context).unwrap_bool();
 
         if control {
             return args[1].eval(context);

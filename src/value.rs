@@ -16,3 +16,40 @@ impl fmt::Display for Value {
         }
     }
 }
+
+impl Value {
+    pub fn is_integer(&self) -> bool {
+        match self {
+            Value::Integer(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_bool(&self) -> bool {
+        match self {
+            Value::Bool(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_nil(&self) -> bool {
+        match self {
+            Value::Nil => true,
+            _ => false,
+        }
+    }
+
+        pub fn unwrap_integer(&self) -> i32 {
+        match self {
+            Value::Integer(int) => *int,
+            _ => panic!(),
+        }
+    }
+
+    pub fn unwrap_bool(&self) -> bool {
+        match self {
+            Value::Bool(val) => *val,
+            _ => panic!(),
+        }
+    }
+}
