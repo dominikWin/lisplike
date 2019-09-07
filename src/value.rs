@@ -39,7 +39,7 @@ impl Value {
         }
     }
 
-        pub fn unwrap_integer(&self) -> i32 {
+    pub fn unwrap_integer(&self) -> i32 {
         match self {
             Value::Integer(int) => *int,
             _ => panic!(),

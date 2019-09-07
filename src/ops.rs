@@ -12,6 +12,12 @@ pub fn get_op(name: &str) -> Option<Box<dyn Operation>> {
         "*" => Option::Some(Box::new(OpMul {})),
         "-" => Option::Some(Box::new(OpSub {})),
         "/" => Option::Some(Box::new(OpDiv {})),
+        "=" => Option::Some(Box::new(OpEq {})),
+        "<" => Option::Some(Box::new(OpLt {})),
+        ">" => Option::Some(Box::new(OpGt {})),
+        "and" => Option::Some(Box::new(OpAnd {})),
+        "or" => Option::Some(Box::new(OpOr {})),
+        "not" => Option::Some(Box::new(OpNot {})),
         "print" => Option::Some(Box::new(OpPrint {})),
         "if" => Option::Some(Box::new(OpIf {})),
         "block" => Option::Some(Box::new(OpBlock {})),
@@ -127,5 +133,70 @@ impl Operation for OpGlobal {
         context.globals.insert(global_name, value);
 
         Value::Nil
+    }
+}
+
+struct OpEq {}
+
+impl Operation for OpEq {
+    fn eval(&self, args: &[Expression], context: &mut Context) -> Value {
+        assert_eq!(args.len(), 2);
+        let left = args[0].eval(context);
+        let right = args[1].eval(context);
+        Value::Bool(left == right)
+    }
+}
+
+struct OpLt {}
+
+impl Operation for OpLt {
+    fn eval(&self, args: &[Expression], context: &mut Context) -> Value {
+        assert_eq!(args.len(), 2);
+        let left = args[0].eval(context).unwrap_integer();
+        let right = args[1].eval(context).unwrap_integer();
+        Value::Bool(left < right)
+    }
+}
+
+struct OpGt {}
+
+impl Operation for OpGt {
+    fn eval(&self, args: &[Expression], context: &mut Context) -> Value {
+        assert_eq!(args.len(), 2);
+        let left = args[0].eval(context).unwrap_integer();
+        let right = args[1].eval(context).unwrap_integer();
+        Value::Bool(left > right)
+    }
+}
+
+struct OpAnd {}
+
+impl Operation for OpAnd {
+    fn eval(&self, args: &[Expression], context: &mut Context) -> Value {
+        assert_eq!(args.len(), 2);
+        let left = args[0].eval(context).unwrap_bool();
+        let right = args[1].eval(context).unwrap_bool();
+        Value::Bool(left && right)
+    }
+}
+
+struct OpOr {}
+
+impl Operation for OpOr {
+    fn eval(&self, args: &[Expression], context: &mut Context) -> Value {
+        assert_eq!(args.len(), 2);
+        let left = args[0].eval(context).unwrap_bool();
+        let right = args[1].eval(context).unwrap_bool();
+        Value::Bool(left || right)
+    }
+}
+
+struct OpNot {}
+
+impl Operation for OpNot {
+    fn eval(&self, args: &[Expression], context: &mut Context) -> Value {
+        assert_eq!(args.len(), 1);
+        let val = args[0].eval(context).unwrap_bool();
+        Value::Bool(!val)
     }
 }

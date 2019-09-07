@@ -45,13 +45,13 @@ impl From<&mut VecDeque<Token>> for Expression {
             }
             Token::Integer(int) => {
                 return Expression::Value(Value::Integer(*int));
-            },
+            }
             Token::Bool(value) => {
                 return Expression::Value(Value::Bool(*value));
-            },
+            }
             Token::Symbol(value) => {
                 return Expression::Symbol(value.to_string());
-            },
+            }
             _ => {}
         }
 
@@ -220,27 +220,152 @@ mod tests {
         use super::*;
         #[test]
         fn test_int() {
-            assert_eq!(Expression::from("5").eval(&mut Context::new()), Value::Integer(5));
+            assert_eq!(
+                Expression::from("5").eval(&mut Context::new()),
+                Value::Integer(5)
+            );
         }
 
         #[test]
         fn test_add() {
-            assert_eq!(Expression::from("(+ 4 5)").eval(&mut Context::new()), Value::Integer(9));
+            assert_eq!(
+                Expression::from("(+ 4 5)").eval(&mut Context::new()),
+                Value::Integer(9)
+            );
         }
 
         #[test]
         fn test_mul() {
-            assert_eq!(Expression::from("(* 4 5)").eval(&mut Context::new()), Value::Integer(20));
+            assert_eq!(
+                Expression::from("(* 4 5)").eval(&mut Context::new()),
+                Value::Integer(20)
+            );
         }
 
         #[test]
         fn test_sub() {
-            assert_eq!(Expression::from("(- 4 5)").eval(&mut Context::new()), Value::Integer(-1));
+            assert_eq!(
+                Expression::from("(- 4 5)").eval(&mut Context::new()),
+                Value::Integer(-1)
+            );
         }
 
         #[test]
         fn test_div() {
-            assert_eq!(Expression::from("(/ 63 10)").eval(&mut Context::new()), Value::Integer(6));
+            assert_eq!(
+                Expression::from("(/ 63 10)").eval(&mut Context::new()),
+                Value::Integer(6)
+            );
+        }
+
+        #[test]
+        fn test_eq() {
+            assert_eq!(
+                Expression::from("(= 63 10)").eval(&mut Context::new()),
+                Value::Bool(false)
+            );
+            assert_eq!(
+                Expression::from("(= 63 63)").eval(&mut Context::new()),
+                Value::Bool(true)
+            );
+
+            assert_eq!(
+                Expression::from("(= true true)").eval(&mut Context::new()),
+                Value::Bool(true)
+            );
+            assert_eq!(
+                Expression::from("(= true false)").eval(&mut Context::new()),
+                Value::Bool(false)
+            );
+
+            assert_eq!(
+                Expression::from("(= nil nil)").eval(&mut Context::new()),
+                Value::Bool(true)
+            );
+        }
+
+        #[test]
+        fn test_lt() {
+            assert_eq!(
+                Expression::from("(< 63 63)").eval(&mut Context::new()),
+                Value::Bool(false)
+            );
+            assert_eq!(
+                Expression::from("(< 5 63)").eval(&mut Context::new()),
+                Value::Bool(true)
+            );
+            assert_eq!(
+                Expression::from("(< 7 3)").eval(&mut Context::new()),
+                Value::Bool(false)
+            );
+        }
+
+        #[test]
+        fn test_gt() {
+            assert_eq!(
+                Expression::from("(> 63 63)").eval(&mut Context::new()),
+                Value::Bool(false)
+            );
+            assert_eq!(
+                Expression::from("(> 5 63)").eval(&mut Context::new()),
+                Value::Bool(false)
+            );
+            assert_eq!(
+                Expression::from("(> 7 3)").eval(&mut Context::new()),
+                Value::Bool(true)
+            );
+        }
+
+        #[test]
+        fn test_and() {
+            assert_eq!(
+                Expression::from("(and true true)").eval(&mut Context::new()),
+                Value::Bool(true)
+            );
+            assert_eq!(
+                Expression::from("(and true false)").eval(&mut Context::new()),
+                Value::Bool(false)
+            );
+            assert_eq!(
+                Expression::from("(and false true)").eval(&mut Context::new()),
+                Value::Bool(false)
+            );
+            assert_eq!(
+                Expression::from("(and false false)").eval(&mut Context::new()),
+                Value::Bool(false)
+            );
+        }
+
+        #[test]
+        fn test_or() {
+            assert_eq!(
+                Expression::from("(or true true)").eval(&mut Context::new()),
+                Value::Bool(true)
+            );
+            assert_eq!(
+                Expression::from("(or true false)").eval(&mut Context::new()),
+                Value::Bool(true)
+            );
+            assert_eq!(
+                Expression::from("(or false true)").eval(&mut Context::new()),
+                Value::Bool(true)
+            );
+            assert_eq!(
+                Expression::from("(or false false)").eval(&mut Context::new()),
+                Value::Bool(false)
+            );
+        }
+
+        #[test]
+        fn test_not() {
+            assert_eq!(
+                Expression::from("(not true)").eval(&mut Context::new()),
+                Value::Bool(false)
+            );
+            assert_eq!(
+                Expression::from("(not false)").eval(&mut Context::new()),
+                Value::Bool(true)
+            );
         }
 
         #[test]
@@ -253,12 +378,18 @@ mod tests {
 
         #[test]
         fn test_print_int() {
-            assert_eq!(Expression::from("(print 5)").eval(&mut Context::new()), Value::Nil);
+            assert_eq!(
+                Expression::from("(print 5)").eval(&mut Context::new()),
+                Value::Nil
+            );
         }
 
         #[test]
         fn test_print_nil() {
-            assert_eq!(Expression::from("(print nil)").eval(&mut Context::new()), Value::Nil);
+            assert_eq!(
+                Expression::from("(print nil)").eval(&mut Context::new()),
+                Value::Nil
+            );
         }
 
         #[test]
@@ -334,7 +465,8 @@ mod tests {
         fn test_global_multi() {
             let mut context = Context::new();
             assert_eq!(
-                Expression::from("(block (global abc 4) (global a 1) (global abc 7) a)").eval(&mut context),
+                Expression::from("(block (global abc 4) (global a 1) (global abc 7) a)")
+                    .eval(&mut context),
                 Value::Integer(1)
             );
             assert_eq!(context.globals.get("abc"), Option::Some(&Value::Integer(7)));
