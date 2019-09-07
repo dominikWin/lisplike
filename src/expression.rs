@@ -241,5 +241,15 @@ mod tests {
                 Value::Integer(43)
             );
         }
+
+        #[test]
+        fn test_print_int() {
+            assert_eq!(Expression::from("(print 5)").eval(), Value::Nil);
+        }
+
+        #[test]
+        fn test_print_nil() {
+            assert_eq!(Expression::from("(print nil)").eval(), Value::Nil);
+        }
     }
 }

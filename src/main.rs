@@ -15,6 +15,9 @@ fn main() {
             println!();
             break;
         }
+        if line.is_empty() || line == "\n" {
+            continue;
+        }
         let expr: Expression = Expression::from(line.as_str());
         println!("{}", expr.eval());
     }

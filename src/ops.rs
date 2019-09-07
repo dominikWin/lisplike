@@ -11,6 +11,7 @@ pub fn get_op(name: &str) -> Option<Box<dyn Operation>> {
         "*" => Option::Some(Box::new(OpMul {})),
         "-" => Option::Some(Box::new(OpSub {})),
         "/" => Option::Some(Box::new(OpDiv {})),
+        "print" => Option::Some(Box::new(OpPrint{})),
         _ => Option::None,
     }
 }
@@ -88,5 +89,15 @@ impl Operation for OpDiv {
         };
 
         Value::Integer(left / right)
+    }
+}
+
+struct OpPrint {}
+
+impl Operation for OpPrint {
+    fn eval(&self, args: &[Expression]) -> Value {
+        assert_eq!(args.len(), 1);
+        println!("{}", args[0].eval());
+        Value::Nil
     }
 }
