@@ -2,7 +2,7 @@ use crate::value::Value;
 use std::collections::HashMap;
 
 pub struct Context {
-    globals: HashMap<String, Value>
+    pub globals: HashMap<String, Value>,
 }
 
 impl Context {

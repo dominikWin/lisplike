@@ -12,9 +12,10 @@ pub fn get_op(name: &str) -> Option<Box<dyn Operation>> {
         "*" => Option::Some(Box::new(OpMul {})),
         "-" => Option::Some(Box::new(OpSub {})),
         "/" => Option::Some(Box::new(OpDiv {})),
-        "print" => Option::Some(Box::new(OpPrint{})),
-        "if" => Option::Some(Box::new(OpIf{})),
-        "block" => Option::Some(Box::new(OpBlock{})),
+        "print" => Option::Some(Box::new(OpPrint {})),
+        "if" => Option::Some(Box::new(OpIf {})),
+        "block" => Option::Some(Box::new(OpBlock {})),
+        "global" => Option::Some(Box::new(OpGlobal {})),
         _ => Option::None,
     }
 }
@@ -139,5 +140,22 @@ impl Operation for OpBlock {
         }
 
         last_val
+    }
+}
+
+struct OpGlobal {}
+
+impl Operation for OpGlobal {
+    fn eval(&self, args: &[Expression], context: &mut Context) -> Value {
+        assert_eq!(args.len(), 2);
+        let global_name = if let Expression::Symbol(symbol) = &args[0] {
+            symbol.to_string()
+        } else {
+            panic!();
+        };
+        let value = args[1].eval(context);
+        context.globals.insert(global_name, value);
+
+        Value::Nil
     }
 }

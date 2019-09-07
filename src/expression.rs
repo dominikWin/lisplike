@@ -7,6 +7,7 @@ use std::collections::VecDeque;
 #[derive(Debug, PartialEq)]
 pub enum Expression {
     Value(Value),
+    Symbol(String),
     Expression(Token, Vec<Expression>),
 }
 
@@ -14,6 +15,7 @@ impl Expression {
     pub fn eval(&self, context: &mut Context) -> Value {
         match self {
             Expression::Value(v) => (*v).clone(),
+            Expression::Symbol(symbol) => context.globals.get(symbol).unwrap().clone(),
             Expression::Expression(token, args) => {
                 let func_name = match token {
                     Token::Symbol(text) => text,
@@ -46,6 +48,9 @@ impl From<&mut VecDeque<Token>> for Expression {
             },
             Token::Bool(value) => {
                 return Expression::Value(Value::Bool(*value));
+            },
+            Token::Symbol(value) => {
+                return Expression::Symbol(value.to_string());
             },
             _ => {}
         }
@@ -313,6 +318,26 @@ mod tests {
                 Expression::from("(block (+ 5 2) 5 1 true)").eval(&mut Context::new()),
                 Value::Bool(true)
             );
+        }
+
+        #[test]
+        fn test_global() {
+            let mut context = Context::new();
+            assert_eq!(
+                Expression::from("(global abc 4)").eval(&mut context),
+                Value::Nil
+            );
+            assert_eq!(context.globals.get("abc"), Option::Some(&Value::Integer(4)));
+        }
+
+        #[test]
+        fn test_global_multi() {
+            let mut context = Context::new();
+            assert_eq!(
+                Expression::from("(block (global abc 4) (global a 1) (global abc 7) a)").eval(&mut context),
+                Value::Integer(1)
+            );
+            assert_eq!(context.globals.get("abc"), Option::Some(&Value::Integer(7)));
         }
     }
 }

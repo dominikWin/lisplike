@@ -4,9 +4,9 @@ mod ops;
 mod tokenizer;
 mod value;
 
-use std::io::{self, Write};
-use expression::Expression;
 use context::Context;
+use expression::Expression;
+use std::io::{self, Write};
 
 fn main() {
     let mut context = Context::new();
