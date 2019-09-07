@@ -1,3 +1,4 @@
+use crate::ops::get_op;
 use crate::tokenizer::{tokenize, Token};
 use crate::value::Value;
 use std::collections::VecDeque;
@@ -6,6 +7,22 @@ use std::collections::VecDeque;
 pub enum Expression {
     Value(Value),
     Expression(Token, Vec<Expression>),
+}
+
+impl Expression {
+    pub fn eval(&self) -> Value {
+        match self {
+            Expression::Value(v) => (*v).clone(),
+            Expression::Expression(token, args) => {
+                let func_name = match token {
+                    Token::Symbol(text) => text,
+                    _ => panic!(),
+                };
+                let func = get_op(func_name).unwrap();
+                func.eval(args)
+            }
+        }
+    }
 }
 
 impl From<&[Token]> for Expression {
@@ -67,7 +84,10 @@ mod tests {
                 Expression::from("(+ 1 2)"),
                 Expression::Expression(
                     Token::Symbol("+".to_string()),
-                    vec![Expression::Value(Value::Integer(1)), Expression::Value(Value::Integer(2))]
+                    vec![
+                        Expression::Value(Value::Integer(1)),
+                        Expression::Value(Value::Integer(2))
+                    ]
                 )
             );
         }
@@ -86,7 +106,10 @@ mod tests {
                 Expression::from("(+ 1 2)"),
                 Expression::Expression(
                     Token::Symbol("+".to_string()),
-                    vec![Expression::Value(Value::Integer(1)), Expression::Value(Value::Integer(2))]
+                    vec![
+                        Expression::Value(Value::Integer(1)),
+                        Expression::Value(Value::Integer(2))
+                    ]
                 )
             );
         }
@@ -101,7 +124,10 @@ mod tests {
                         Expression::Value(Value::Integer(4)),
                         Expression::Expression(
                             Token::Symbol("*".to_string()),
-                            vec![Expression::Value(Value::Integer(3)), Expression::Value(Value::Integer(5))]
+                            vec![
+                                Expression::Value(Value::Integer(3)),
+                                Expression::Value(Value::Integer(5))
+                            ]
                         )
                     ]
                 )
@@ -118,11 +144,17 @@ mod tests {
                         Expression::Value(Value::Integer(4)),
                         Expression::Expression(
                             Token::Symbol("*".to_string()),
-                            vec![Expression::Value(Value::Integer(3)), Expression::Value(Value::Integer(5))]
+                            vec![
+                                Expression::Value(Value::Integer(3)),
+                                Expression::Value(Value::Integer(5))
+                            ]
                         ),
                         Expression::Expression(
                             Token::Symbol("*".to_string()),
-                            vec![Expression::Value(Value::Integer(4)), Expression::Value(Value::Integer(6))]
+                            vec![
+                                Expression::Value(Value::Integer(4)),
+                                Expression::Value(Value::Integer(6))
+                            ]
                         )
                     ]
                 )
@@ -139,7 +171,10 @@ mod tests {
                         Expression::Value(Value::Integer(4)),
                         Expression::Expression(
                             Token::Symbol("*".to_string()),
-                            vec![Expression::Value(Value::Integer(3)), Expression::Value(Value::Integer(5))]
+                            vec![
+                                Expression::Value(Value::Integer(3)),
+                                Expression::Value(Value::Integer(5))
+                            ]
                         ),
                         Expression::Expression(
                             Token::Symbol("*".to_string()),
@@ -147,12 +182,51 @@ mod tests {
                                 Expression::Value(Value::Integer(4)),
                                 Expression::Expression(
                                     Token::Symbol("*".to_string()),
-                                    vec![Expression::Value(Value::Integer(3)), Expression::Value(Value::Integer(5))]
+                                    vec![
+                                        Expression::Value(Value::Integer(3)),
+                                        Expression::Value(Value::Integer(5))
+                                    ]
                                 )
                             ]
                         )
                     ]
                 )
+            );
+        }
+    }
+
+    mod eval {
+        use super::*;
+        #[test]
+        fn test_int() {
+            assert_eq!(Expression::from("5").eval(), Value::Integer(5));
+        }
+
+        #[test]
+        fn test_add() {
+            assert_eq!(Expression::from("(+ 4 5)").eval(), Value::Integer(9));
+        }
+
+        #[test]
+        fn test_mul() {
+            assert_eq!(Expression::from("(* 4 5)").eval(), Value::Integer(20));
+        }
+
+        #[test]
+        fn test_sub() {
+            assert_eq!(Expression::from("(- 4 5)").eval(), Value::Integer(-1));
+        }
+
+        #[test]
+        fn test_div() {
+            assert_eq!(Expression::from("(/ 63 10)").eval(), Value::Integer(6));
+        }
+
+        #[test]
+        fn test_math() {
+            assert_eq!(
+                Expression::from("(+ 4 (* 3 5) (* 4 6))").eval(),
+                Value::Integer(43)
             );
         }
     }
