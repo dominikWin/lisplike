@@ -10,8 +10,11 @@ fn main() {
     loop {
         let mut line = String::new();
         print!("repl> ");
-        io::stdout().flush();
-        io::stdin().read_line(&mut line).unwrap();
+        io::stdout().flush().unwrap();
+        if io::stdin().read_line(&mut line).unwrap() == 0 {
+            println!();
+            break;
+        }
         let expr: Expression = Expression::from(line.as_str());
         println!("{}", expr.eval());
     }

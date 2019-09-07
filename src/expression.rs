@@ -39,6 +39,12 @@ impl From<&mut VecDeque<Token>> for Expression {
         if let Token::Integer(int) = &first_token {
             return Expression::Value(Value::Integer(*int));
         }
+        if let Token::Symbol(string) = &first_token {
+            match string.as_str() {
+                "nil" => return Expression::Value(Value::Nil),
+                _ => {},
+            }
+        }
 
         assert_eq!(first_token, Token::LParen);
 
@@ -95,6 +101,12 @@ mod tests {
 
     mod from_string {
         use super::*;
+
+        #[test]
+        fn test_nil() {
+            assert_eq!(Expression::from("nil"), Expression::Value(Value::Nil));
+        }
+
         #[test]
         fn test_int() {
             assert_eq!(Expression::from("6"), Expression::Value(Value::Integer(6)));
