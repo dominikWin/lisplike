@@ -20,6 +20,7 @@ pub fn get_op(name: &str) -> Option<Box<dyn Operation>> {
         "not" => Option::Some(Box::new(OpNot {})),
         "print" => Option::Some(Box::new(OpPrint {})),
         "if" => Option::Some(Box::new(OpIf {})),
+        "while" => Option::Some(Box::new(OpWhile {})),
         "block" => Option::Some(Box::new(OpBlock {})),
         "global" => Option::Some(Box::new(OpGlobal {})),
         _ => Option::None,
@@ -102,6 +103,22 @@ impl Operation for OpIf {
         } else {
             Value::Nil
         }
+    }
+}
+
+struct OpWhile {}
+
+impl Operation for OpWhile {
+    fn eval(&self, args: &[Expression], context: &mut Context) -> Value {
+        assert_eq!(args.len(), 2);
+        loop {
+            let control = args[0].eval(context).unwrap_bool();
+            if !control {
+                break;
+            }
+            args[1].eval(context);
+        }
+        Value::Nil
     }
 }
 

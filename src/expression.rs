@@ -429,6 +429,14 @@ mod tests {
         }
 
         #[test]
+        fn test_while() {
+            assert_eq!(
+                Expression::from("(block (global i 0) (while (< i 10) (block (print i) (global i (+ i 1)))) i)").eval(&mut Context::new()),
+                Value::Integer(10)
+            );
+        }
+
+        #[test]
         fn test_block() {
             assert_eq!(
                 Expression::from("(block)").eval(&mut Context::new()),
