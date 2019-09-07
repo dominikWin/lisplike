@@ -4,6 +4,7 @@ use std::fmt;
 pub enum Value {
     Integer(i32),
     Bool(bool),
+    String(String),
     Nil,
 }
 
@@ -12,6 +13,7 @@ impl fmt::Display for Value {
         match self {
             Value::Integer(int) => write!(f, "{}", int),
             Value::Bool(value) => write!(f, "{}", if *value { "true" } else { "false" }),
+            Value::String(string) => write!(f, "\"{}\"", string),
             Value::Nil => write!(f, "nil"),
         }
     }
@@ -28,6 +30,13 @@ impl Value {
     pub fn is_bool(&self) -> bool {
         match self {
             Value::Bool(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_string(&self) -> bool {
+        match self {
+            Value::String(_) => true,
             _ => false,
         }
     }
@@ -49,6 +58,13 @@ impl Value {
     pub fn unwrap_bool(&self) -> bool {
         match self {
             Value::Bool(val) => *val,
+            _ => panic!(),
+        }
+    }
+
+    pub fn unwrap_string(&self) -> &str {
+        match self {
+            Value::String(string) => string,
             _ => panic!(),
         }
     }

@@ -82,7 +82,13 @@ struct OpPrint {}
 impl Operation for OpPrint {
     fn eval(&self, args: &[Expression], context: &mut Context) -> Value {
         assert_eq!(args.len(), 1);
-        println!("{}", args[0].eval(context));
+        let val = args[0].eval(context);
+        if val.is_string() {
+            // Don't print quotes
+            println!("{}", val.unwrap_string());
+        } else {
+            println!("{}", val);
+        }
         Value::Nil
     }
 }

@@ -49,6 +49,9 @@ impl From<&mut VecDeque<Token>> for Expression {
             Token::Bool(value) => {
                 return Expression::Value(Value::Bool(*value));
             }
+            Token::String(string) => {
+                return Expression::Value(Value::String(string.to_string()));
+            }
             Token::Symbol(value) => {
                 return Expression::Symbol(value.to_string());
             }
@@ -223,6 +226,35 @@ mod tests {
             assert_eq!(
                 Expression::from("5").eval(&mut Context::new()),
                 Value::Integer(5)
+            );
+        }
+
+        #[test]
+        fn test_nil() {
+            assert_eq!(
+                Expression::from("nil").eval(&mut Context::new()),
+                Value::Nil
+            );
+        }
+
+        #[test]
+        fn test_bool() {
+            assert_eq!(
+                Expression::from("true").eval(&mut Context::new()),
+                Value::Bool(true)
+            );
+
+            assert_eq!(
+                Expression::from("false").eval(&mut Context::new()),
+                Value::Bool(false)
+            );
+        }
+
+        #[test]
+        fn test_string() {
+            assert_eq!(
+                Expression::from("\"Hello, world!\"").eval(&mut Context::new()),
+                Value::String("Hello, world!".to_string())
             );
         }
 
@@ -431,7 +463,10 @@ mod tests {
         #[test]
         fn test_while() {
             assert_eq!(
-                Expression::from("(block (global i 0) (while (< i 10) (block (print i) (global i (+ i 1)))) i)").eval(&mut Context::new()),
+                Expression::from(
+                    "(block (global i 0) (while (< i 10) (block (print i) (global i (+ i 1)))) i)"
+                )
+                .eval(&mut Context::new()),
                 Value::Integer(10)
             );
         }

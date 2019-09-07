@@ -6,6 +6,7 @@ pub enum Token {
     Symbol(String),
     Integer(i32),
     Bool(bool),
+    String(String),
 }
 
 impl From<&str> for Token {
@@ -21,7 +22,13 @@ impl From<&str> for Token {
 
         if let Token::Symbol(text) = &token {
             assert!(!text.is_empty());
-            if let Ok(int) = text.parse::<i32>() {
+            if text.starts_with("\"") {
+                assert!(text.len() >= 2);
+                let mut text = text.to_string();
+                text.pop();
+                text.remove(0);
+                token = Token::String(text);
+            } else if let Ok(int) = text.parse::<i32>() {
                 token = Token::Integer(int);
             }
         }
@@ -35,25 +42,47 @@ fn split_syntax(string: &str) -> Vec<String> {
 
     let mut buffer = String::new();
 
+    let mut in_string = false;
+
     for c in string.chars() {
         let buffer = &mut buffer;
-        if c.is_whitespace() {
-            if !buffer.is_empty() {
-                out.push(buffer.clone());
-                buffer.clear();
-            }
-        } else if c == '(' || c == ')' {
-            if !buffer.is_empty() {
-                out.push(buffer.clone());
-                buffer.clear();
-            }
-            buffer.push(c);
-            if !buffer.is_empty() {
-                out.push(buffer.clone());
-                buffer.clear();
+        if in_string {
+            if c == '"' {
+                buffer.push('\"');
+                if !buffer.is_empty() {
+                    out.push(buffer.clone());
+                    buffer.clear();
+                }
+                in_string = false;
+            } else {
+                buffer.push(c);
             }
         } else {
-            buffer.push(c);
+            if c == '"' {
+                if !buffer.is_empty() {
+                    out.push(buffer.clone());
+                    buffer.clear();
+                }
+                buffer.push('\"');
+                in_string = true;
+            } else if c.is_whitespace() {
+                if !buffer.is_empty() {
+                    out.push(buffer.clone());
+                    buffer.clear();
+                }
+            } else if c == '(' || c == ')' {
+                if !buffer.is_empty() {
+                    out.push(buffer.clone());
+                    buffer.clear();
+                }
+                buffer.push(c);
+                if !buffer.is_empty() {
+                    out.push(buffer.clone());
+                    buffer.clear();
+                }
+            } else {
+                buffer.push(c);
+            }
         }
     }
     if !buffer.is_empty() {
@@ -150,6 +179,28 @@ mod tests {
             assert_eq!(
                 split_syntax("(+ 4 (* 3 5))"),
                 vec!["(", "+", "4", "(", "*", "3", "5", ")", ")"]
+            );
+        }
+
+        #[test]
+        fn test_empty_string() {
+            assert_eq!(split_syntax("\"\""), vec!["\"\""]);
+            assert_eq!(split_syntax("asdf\"\"  \t"), vec!["asdf", "\"\""]);
+        }
+
+        #[test]
+        fn test_string() {
+            assert_eq!(
+                split_syntax("\t\"Hello, world!\"  "),
+                vec!["\"Hello, world!\""]
+            );
+            assert_eq!(
+                split_syntax("asdf\"Hello, world!\"  \t"),
+                vec!["asdf", "\"Hello, world!\""]
+            );
+            assert_eq!(
+                split_syntax("(\"Hello, world!\" ) "),
+                vec!["(", "\"Hello, world!\"", ")"]
             );
         }
     }
