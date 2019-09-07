@@ -1,3 +1,4 @@
+use crate::context::Context;
 use crate::ops::get_op;
 use crate::tokenizer::{tokenize, Token};
 use crate::value::Value;
@@ -10,7 +11,7 @@ pub enum Expression {
 }
 
 impl Expression {
-    pub fn eval(&self) -> Value {
+    pub fn eval(&self, context: &mut Context) -> Value {
         match self {
             Expression::Value(v) => (*v).clone(),
             Expression::Expression(token, args) => {
@@ -19,7 +20,7 @@ impl Expression {
                     _ => panic!(),
                 };
                 let func = get_op(func_name).unwrap();
-                func.eval(args)
+                func.eval(args, context)
             }
         }
     }
@@ -214,56 +215,56 @@ mod tests {
         use super::*;
         #[test]
         fn test_int() {
-            assert_eq!(Expression::from("5").eval(), Value::Integer(5));
+            assert_eq!(Expression::from("5").eval(&mut Context::new()), Value::Integer(5));
         }
 
         #[test]
         fn test_add() {
-            assert_eq!(Expression::from("(+ 4 5)").eval(), Value::Integer(9));
+            assert_eq!(Expression::from("(+ 4 5)").eval(&mut Context::new()), Value::Integer(9));
         }
 
         #[test]
         fn test_mul() {
-            assert_eq!(Expression::from("(* 4 5)").eval(), Value::Integer(20));
+            assert_eq!(Expression::from("(* 4 5)").eval(&mut Context::new()), Value::Integer(20));
         }
 
         #[test]
         fn test_sub() {
-            assert_eq!(Expression::from("(- 4 5)").eval(), Value::Integer(-1));
+            assert_eq!(Expression::from("(- 4 5)").eval(&mut Context::new()), Value::Integer(-1));
         }
 
         #[test]
         fn test_div() {
-            assert_eq!(Expression::from("(/ 63 10)").eval(), Value::Integer(6));
+            assert_eq!(Expression::from("(/ 63 10)").eval(&mut Context::new()), Value::Integer(6));
         }
 
         #[test]
         fn test_math() {
             assert_eq!(
-                Expression::from("(+ 4 (* 3 5) (* 4 6))").eval(),
+                Expression::from("(+ 4 (* 3 5) (* 4 6))").eval(&mut Context::new()),
                 Value::Integer(43)
             );
         }
 
         #[test]
         fn test_print_int() {
-            assert_eq!(Expression::from("(print 5)").eval(), Value::Nil);
+            assert_eq!(Expression::from("(print 5)").eval(&mut Context::new()), Value::Nil);
         }
 
         #[test]
         fn test_print_nil() {
-            assert_eq!(Expression::from("(print nil)").eval(), Value::Nil);
+            assert_eq!(Expression::from("(print nil)").eval(&mut Context::new()), Value::Nil);
         }
 
         #[test]
         fn test_if() {
             assert_eq!(
-                Expression::from("(if true 4 nil)").eval(),
+                Expression::from("(if true 4 nil)").eval(&mut Context::new()),
                 Value::Integer(4)
             );
 
             assert_eq!(
-                Expression::from("(if false 4 nil)").eval(),
+                Expression::from("(if false 4 nil)").eval(&mut Context::new()),
                 Value::Nil
             );
         }
@@ -271,22 +272,22 @@ mod tests {
         #[test]
         fn test_if_else() {
             assert_eq!(
-                Expression::from("(if true 4 nil)").eval(),
+                Expression::from("(if true 4 nil)").eval(&mut Context::new()),
                 Value::Integer(4)
             );
 
             assert_eq!(
-                Expression::from("(if false 4 nil)").eval(),
+                Expression::from("(if false 4 nil)").eval(&mut Context::new()),
                 Value::Nil
             );
 
             assert_eq!(
-                Expression::from("(if true nil 4)").eval(),
+                Expression::from("(if true nil 4)").eval(&mut Context::new()),
                 Value::Nil
             );
 
             assert_eq!(
-                Expression::from("(if false 4 4)").eval(),
+                Expression::from("(if false 4 4)").eval(&mut Context::new()),
                 Value::Integer(4)
             );
         }
@@ -294,22 +295,22 @@ mod tests {
         #[test]
         fn test_block() {
             assert_eq!(
-                Expression::from("(block)").eval(),
+                Expression::from("(block)").eval(&mut Context::new()),
                 Value::Nil
             );
 
             assert_eq!(
-                Expression::from("(block 5)").eval(),
+                Expression::from("(block 5)").eval(&mut Context::new()),
                 Value::Integer(5)
             );
 
             assert_eq!(
-                Expression::from("(block 5 7)").eval(),
+                Expression::from("(block 5 7)").eval(&mut Context::new()),
                 Value::Integer(7)
             );
 
             assert_eq!(
-                Expression::from("(block (+ 5 2) 5 1 true)").eval(),
+                Expression::from("(block (+ 5 2) 5 1 true)").eval(&mut Context::new()),
                 Value::Bool(true)
             );
         }
