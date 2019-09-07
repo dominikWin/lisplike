@@ -36,14 +36,17 @@ impl From<&mut VecDeque<Token>> for Expression {
         assert!(tokens.len() >= 1);
 
         let first_token = tokens.pop_front().unwrap();
-        if let Token::Integer(int) = &first_token {
-            return Expression::Value(Value::Integer(*int));
-        }
-        if let Token::Symbol(string) = &first_token {
-            match string.as_str() {
-                "nil" => return Expression::Value(Value::Nil),
-                _ => {},
+        match &first_token {
+            Token::Nil => {
+                return Expression::Value(Value::Nil);
             }
+            Token::Integer(int) => {
+                return Expression::Value(Value::Integer(*int));
+            },
+            Token::Bool(value) => {
+                return Expression::Value(Value::Bool(*value));
+            },
+            _ => {}
         }
 
         assert_eq!(first_token, Token::LParen);
@@ -250,6 +253,42 @@ mod tests {
         #[test]
         fn test_print_nil() {
             assert_eq!(Expression::from("(print nil)").eval(), Value::Nil);
+        }
+
+        #[test]
+        fn test_if() {
+            assert_eq!(
+                Expression::from("(if true 4 nil)").eval(),
+                Value::Integer(4)
+            );
+
+            assert_eq!(
+                Expression::from("(if false 4 nil)").eval(),
+                Value::Nil
+            );
+        }
+
+        #[test]
+        fn test_if_else() {
+            assert_eq!(
+                Expression::from("(if true 4 nil)").eval(),
+                Value::Integer(4)
+            );
+
+            assert_eq!(
+                Expression::from("(if false 4 nil)").eval(),
+                Value::Nil
+            );
+
+            assert_eq!(
+                Expression::from("(if true nil 4)").eval(),
+                Value::Nil
+            );
+
+            assert_eq!(
+                Expression::from("(if false 4 4)").eval(),
+                Value::Integer(4)
+            );
         }
     }
 }

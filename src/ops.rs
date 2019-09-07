@@ -12,6 +12,7 @@ pub fn get_op(name: &str) -> Option<Box<dyn Operation>> {
         "-" => Option::Some(Box::new(OpSub {})),
         "/" => Option::Some(Box::new(OpDiv {})),
         "print" => Option::Some(Box::new(OpPrint{})),
+        "if" => Option::Some(Box::new(OpIf{})),
         _ => Option::None,
     }
 }
@@ -99,5 +100,28 @@ impl Operation for OpPrint {
         assert_eq!(args.len(), 1);
         println!("{}", args[0].eval());
         Value::Nil
+    }
+}
+
+struct OpIf {}
+
+impl Operation for OpIf {
+    fn eval(&self, args: &[Expression]) -> Value {
+        assert!(args.len() >= 2 && args.len() <= 3);
+        let control = if let Value::Bool(val) = args[0].eval() {
+            val
+        } else {
+            panic!();
+        };
+
+        if control {
+            return args[1].eval();
+        }
+
+        if args.len() == 3 {
+            args[2].eval()
+        } else {
+            Value::Nil
+        }
     }
 }

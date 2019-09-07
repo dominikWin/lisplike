@@ -2,8 +2,10 @@
 pub enum Token {
     LParen,
     RParen,
+    Nil,
     Symbol(String),
     Integer(i32),
+    Bool(bool),
 }
 
 impl From<&str> for Token {
@@ -11,6 +13,9 @@ impl From<&str> for Token {
         let mut token = match string {
             "(" => Token::LParen,
             ")" => Token::RParen,
+            "true" => Token::Bool(true),
+            "false" => Token::Bool(false),
+            "nil" => Token::Nil,
             text => Token::Symbol(text.to_string()),
         };
 
@@ -160,6 +165,17 @@ mod tests {
         #[test]
         fn test_rparen() {
             assert_eq!(Token::from("("), Token::LParen);
+        }
+
+        #[test]
+        fn test_nil() {
+            assert_eq!(Token::from("nil"), Token::Nil);
+        }
+
+        #[test]
+        fn test_bool() {
+            assert_eq!(Token::from("true"), Token::Bool(true));
+            assert_eq!(Token::from("false"), Token::Bool(false));
         }
 
         #[test]
