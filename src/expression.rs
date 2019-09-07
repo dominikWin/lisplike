@@ -290,5 +290,28 @@ mod tests {
                 Value::Integer(4)
             );
         }
+
+        #[test]
+        fn test_block() {
+            assert_eq!(
+                Expression::from("(block)").eval(),
+                Value::Nil
+            );
+
+            assert_eq!(
+                Expression::from("(block 5)").eval(),
+                Value::Integer(5)
+            );
+
+            assert_eq!(
+                Expression::from("(block 5 7)").eval(),
+                Value::Integer(7)
+            );
+
+            assert_eq!(
+                Expression::from("(block (+ 5 2) 5 1 true)").eval(),
+                Value::Bool(true)
+            );
+        }
     }
 }

@@ -13,6 +13,7 @@ pub fn get_op(name: &str) -> Option<Box<dyn Operation>> {
         "/" => Option::Some(Box::new(OpDiv {})),
         "print" => Option::Some(Box::new(OpPrint{})),
         "if" => Option::Some(Box::new(OpIf{})),
+        "block" => Option::Some(Box::new(OpBlock{})),
         _ => Option::None,
     }
 }
@@ -123,5 +124,19 @@ impl Operation for OpIf {
         } else {
             Value::Nil
         }
+    }
+}
+
+struct OpBlock {}
+
+impl Operation for OpBlock {
+    fn eval(&self, args: &[Expression]) -> Value {
+        let mut last_val = Value::Nil;
+
+        for arg in args {
+            last_val = arg.eval();
+        }
+
+        last_val
     }
 }
