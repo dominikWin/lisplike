@@ -12,6 +12,7 @@ pub fn get_op(name: &str) -> Option<Box<dyn Operation>> {
         "*" => Option::Some(Box::new(OpMul {})),
         "-" => Option::Some(Box::new(OpSub {})),
         "/" => Option::Some(Box::new(OpDiv {})),
+        "%" => Option::Some(Box::new(OpMod {})),
         "=" => Option::Some(Box::new(OpEq {})),
         "<" => Option::Some(Box::new(OpLt {})),
         ">" => Option::Some(Box::new(OpGt {})),
@@ -74,6 +75,17 @@ impl Operation for OpDiv {
         let left = args[0].eval(context).unwrap_integer();
         let right = args[1].eval(context).unwrap_integer();
         Value::Integer(left / right)
+    }
+}
+
+struct OpMod {}
+
+impl Operation for OpMod {
+    fn eval(&self, args: &[Expression], context: &mut Context) -> Value {
+        assert_eq!(args.len(), 2);
+        let left = args[0].eval(context).unwrap_integer();
+        let right = args[1].eval(context).unwrap_integer();
+        Value::Integer(left % right)
     }
 }
 

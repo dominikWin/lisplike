@@ -291,6 +291,19 @@ mod tests {
         }
 
         #[test]
+        fn test_mod() {
+            assert_eq!(
+                Expression::from("(% 63 100)").eval(&mut Context::new()),
+                Value::Integer(63)
+            );
+
+            assert_eq!(
+                Expression::from("(% 101 2)").eval(&mut Context::new()),
+                Value::Integer(1)
+            );
+        }
+
+        #[test]
         fn test_eq() {
             assert_eq!(
                 Expression::from("(= 63 10)").eval(&mut Context::new()),
