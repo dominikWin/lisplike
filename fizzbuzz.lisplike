@@ -1,0 +1,12 @@
+(block
+    (global i 1)
+
+    (while (< i 100)
+        (block 
+            (if (= 0 (% i 15)) (print "FizzBuzz")
+                (if (= 0 (% i 5)) (print "Buzz")
+                    (if (= 0 (% i 3)) (print "Fizz")
+                        (print i))))
+            (global i (+ i 1))
+        ))
+)
